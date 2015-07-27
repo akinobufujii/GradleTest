@@ -1,5 +1,19 @@
 // プラグイン
 apply plugin: 'cpp'
+apply plugin: 'groovy'
+
+task zipApp(type: Zip, dependsOn: jar) {
+    // zip ファイル名の変更
+    archiveName = "testArchive.zip"
+
+    // zip化するディレクトリ
+    from 'build/binaries'
+}
+
+// 成果物を生むタスク(buildコマンドで実行)
+artifacts {
+    archives zipApp
+}
 
 // 実行ファイル（Main）側設定
 model
