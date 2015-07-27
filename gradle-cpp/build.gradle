@@ -1,0 +1,36 @@
+// プラグイン
+apply plugin: 'cpp'
+
+// 実行ファイル（Main）側設定
+model
+{
+	components
+	{
+		main(NativeExecutableSpec)
+		{
+			binaries.all {
+                // マクロ定義
+                cppCompiler.define "NDEBUG"
+                
+                // 使用するツールチェイン
+                if(toolChain in Gcc)
+                {
+                    cppCompiler.args "-fno-access-control", "-fconserve-space"
+                }
+            }
+		}
+	}
+}
+
+binaries.withType(NativeExecutableBinary) { binary ->
+    def linkTask = binary.tasks.link
+    def stripTask = task("strip${binary.name.capitalize()}") {
+        dependsOn linkTask
+        doFirst {
+            if (binary.toolChain in Gcc) {
+                ["strip", linkTask.outputFile].execute()
+            }
+        }
+    }
+    binary.builtBy stripTask
+}
